@@ -39,7 +39,6 @@ void serialize_entry(FILE* file, EntryPass* entries, uint32_t numEntries) {
     }
 }
 
-/*
 char* qstrdup(const char *s) {
     size_t len = strlen(s) + 1;
     char *new_s = malloc(len);
@@ -47,7 +46,6 @@ char* qstrdup(const char *s) {
     memcpy(new_s, s, len);
     return new_s;
 }
-*/
 
 EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
     if (file == NULL) {
@@ -78,12 +76,12 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
 
         fscanf(file, "%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%[^\n]\n", entryName, username, email, url, note, pass);
 
-        entries[i].entryName = strdup(entryName);
-        entries[i].username = strdup(username);
-        entries[i].email = strdup(email);
-        entries[i].url = strdup(url);
-        entries[i].note = strdup(note);
-		entries[i].pass = strdup(pass);
+        entries[i].entryName = qstrdup(entryName);
+        entries[i].username = qstrdup(username);
+        entries[i].email = qstrdup(email);
+        entries[i].url = qstrdup(url);
+        entries[i].note = qstrdup(note);
+	entries[i].pass = qstrdup(pass);
     }
 
     *numEntries = count;

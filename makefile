@@ -1,7 +1,7 @@
 CFLAGS = -lcrypto -Wextra -Wall -Werror -pedantic -lm
 
 install:
-	gcc ./src/repl.c ./src/rogp_generation.c ./src/generation_utility.c ./src/print_functions.c -o rogp $(CFLAGS)
+	gcc --std=c18 ./src/repl.c ./src/rogp_generation.c ./src/generation_utility.c ./src/print_functions.c -o rogp $(CFLAGS)
 
 pass_gen:
 	gcc ./tests/test_password_generation.c ./src/generation_utility.h ./src/generation_utility.c -o ./tests/test_password_generation $(CFLAGS)
