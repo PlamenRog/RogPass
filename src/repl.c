@@ -286,27 +286,12 @@ int main(){
 				exit(EXIT_FAILURE);
     		}
 
-			/*
-			// Copies entries to array
-			printf("Enter the file(master) password: ");
-			scanf(" %128[^\n]", masterPass);
+		// TODO: add encryption
 
-			unsigned char key[33];
-			generate_key_from_password(masterPass, key);
+		entries = deserialize_entry(file, &numEntries);
 
-			decrypt_file(filename, "temp.txt", key);
-
-			FILE* tmpFile = fopen("temp.txt", "r");
-			entries = deserialize_entry(tmpFile, &numEntries);
-
-			fclose(tmpFile);
-			remove("temp.txt");
-			*/
-
-			entries = deserialize_entry(file, &numEntries); //TODO: change name to filename
-
-			fclose(file);
-			break;
+		fclose(file);
+		break;
 		}
 
 		printf("Invalid input, try again.\n");
@@ -394,7 +379,7 @@ int main(){
 
         else if (strcmp(choice, "WRITE") == 0) {
 
-		file = fopen("entries.rogp", "w");
+		file = fopen(filename, "w");
     		if (file == NULL) {
     		    printf("Error opening file for writing.\n");
     		    exit(EXIT_FAILURE);
@@ -403,13 +388,7 @@ int main(){
     		serialize_entry(file, entries, numEntries);
     		fclose(file);
 
-/*
-		char unsigned key[33];
-		generate_key_from_password(masterPass, key);
 
-		encrypt_file("temp.txt", filename, key);
-		remove("temp.txt");
-*/
 		hasSaved = true;
         }
 

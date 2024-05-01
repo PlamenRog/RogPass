@@ -24,7 +24,7 @@ int main() {
     const char password[] = "pass";
     char unsigned key[33];
 
-	generate_key_from_password(password, key);
+    generate_key_from_password(password, key);
 
     encrypt_file(inputFile, encryptedFile, key);
     decrypt_file(encryptedFile, decryptedFile, key);
