@@ -287,8 +287,26 @@ int main(){
 			    exit(EXIT_FAILURE);
     			}
 
-			// TODO: REMOVE WHEN IMPLEMENTING ENCRYPTION
-			entries = deserialize_entry(file, &numEntries);
+			scanf(" %128[^\n]", masterPass);
+
+    			char unsigned key[17];
+			generate_key_from_password(masterPass, key);
+
+			// TODO: add encryption
+    			if (decrypt_file(filename, "temp.txt", key) != 0) {
+    			    fprintf(stderr, "Decryption failed\n");
+    			    return EXIT_FAILURE;
+    			}
+
+    			FILE* tempFile = fopen("temp.txt", "r");
+    			if (tempFile == NULL) {
+    			    printf("Error opening file for reading.\n");
+    			    return 1;
+    			}
+			entries = deserialize_entry(tempFile, &numEntries);
+			fclose(tempFile);
+
+			remove("temp.txt");
 			fclose(file);
 			break;
 		}
@@ -378,15 +396,24 @@ int main(){
 
         else if (strcmp(choice, "WRITE") == 0) {
 
-		file = fopen(filename, "w");
+		FILE* tempFile = fopen("temp.txt", "w");
     		if (file == NULL) {
     		    printf("Error opening file for writing.\n");
     		    exit(EXIT_FAILURE);
     		}
 
-    		serialize_entry(file, entries, numEntries);
-    		fclose(file);
+    		serialize_entry(tempFile, entries, numEntries);
+    		fclose(tempFile);
 
+    		char unsigned key[17];
+		generate_key_from_password(masterPass, key);
+
+		
+		remove(filename);
+    		if (encrypt_file("temp.txt", filename, key) != 0) {
+    		    fprintf(stderr, "Encryption failed\n");
+    		    exit(EXIT_FAILURE);
+    		}
 
 		hasSaved = true;
         }

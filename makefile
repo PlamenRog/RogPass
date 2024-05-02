@@ -1,4 +1,4 @@
-CFLAGS = -lcrypto -Wextra -Wall -Werror -pedantic -lm
+CFLAGS = -lcrypto -lssl -Wextra -Wall -Werror -pedantic -lm
 
 install:
 	gcc --std=c18 ./src/repl.c ./src/rogp_generation.c ./src/generation_utility.c ./src/print_functions.c -o rogp $(CFLAGS)
