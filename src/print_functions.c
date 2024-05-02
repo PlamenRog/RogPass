@@ -47,10 +47,13 @@ void pretty_print(EntryPass* entry, uint32_t numEntries) {
     // Print the header
     printf("| %-*s | %-*s | %-*s |\n", width_number, "ID", width_entryName, "Entry name", width_url, "URL");
     printf("|");
+
     for (int i = 0; i < width_number + 2; i++) printf("-");
     printf("|");
+
     for (int i = 0; i < width_entryName + 2; i++) printf("-");
     printf("|");
+
     for (int i = 0; i < width_url + 2; i++) printf("-");
     printf("|\n");
 

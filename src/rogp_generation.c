@@ -84,7 +84,7 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
         entries[i].email = qstrdup(email);
         entries[i].url = qstrdup(url);
         entries[i].note = qstrdup(note);
-	entries[i].pass = qstrdup(pass);
+        entries[i].pass = qstrdup(pass);
     }
 
     *numEntries = count;
@@ -256,8 +256,8 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
 
     // Clean up
     EVP_CIPHER_CTX_free(ctx);
-    fclose(inputFile);
     fclose(outputFile);
+    fclose(inputFile);
 
     return 0;
 }

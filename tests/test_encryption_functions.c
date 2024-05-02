@@ -28,12 +28,12 @@ int main() {
     generate_key_from_password(password, key);
 
     if (encrypt_file(inputFile, encryptedFile, key) != 0) {
-	fprintf(stderr, "Encryption failed\n");
-	return EXIT_FAILURE;
+        fprintf(stderr, "Encryption failed\n");
+        return EXIT_FAILURE;
     }
     if (decrypt_file(encryptedFile, decryptedFile, key) != 0) {
-	fprintf(stderr, "Decryption failed\n");
-	return EXIT_FAILURE;
+        fprintf(stderr, "Decryption failed\n");
+        return EXIT_FAILURE;
     }
 
     printf("Encryption and decryption completed successfully.\n");

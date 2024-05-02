@@ -136,10 +136,7 @@ char* generate_password(Password pass) {
 	}
 
     const uint32_t charsetLength = strlen(charset); // Calculate charset length after all characters are added
-
     char *randomString = (char *)malloc((pass.length + 1) * sizeof(char));
-    //const uint32_t stringLen = strlen(randomString);
-
 
 	for (uint32_t i = 0; i < pass.length; i++) {
 		int randElem;
