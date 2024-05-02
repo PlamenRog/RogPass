@@ -228,7 +228,7 @@ void print_help() {
 int main(){
 	FILE* file = NULL;
 	EntryPass* entries = NULL;
-	uint32_t numEntries;
+	uint32_t numEntries = 0;
 	char masterPass[129];
 
 	char filename[129];
@@ -254,6 +254,7 @@ int main(){
 				}
 			}
 
+			// TODO: simplify for user
 			if (hasExtention) {
 				printf("Don't input the extension!\n");
 				exit(EXIT_FAILURE);
@@ -280,18 +281,16 @@ int main(){
 			printf("Enter a file name(with the extention): ");
 			scanf(" %128[^\n]", filename);
 
-    		file = fopen(filename, "r");
-    		if (file == NULL) {
-    		    printf("Error opening file for redacting\n");
-				exit(EXIT_FAILURE);
-    		}
+    			file = fopen(filename, "r");
+    			if (file == NULL) {
+    			    printf("Error opening file for redacting\n");
+			    exit(EXIT_FAILURE);
+    			}
 
-		// TODO: add encryption
-
-		entries = deserialize_entry(file, &numEntries);
-
-		fclose(file);
-		break;
+			// TODO: REMOVE WHEN IMPLEMENTING ENCRYPTION
+			entries = deserialize_entry(file, &numEntries);
+			fclose(file);
+			break;
 		}
 
 		printf("Invalid input, try again.\n");
