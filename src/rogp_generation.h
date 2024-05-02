@@ -27,4 +27,8 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries);
 
 void generate_key_from_password(const char *password, unsigned char *key);
 
+int encrypt_file(const char *inputFileName, const char *outputFileName, const unsigned char *key);
+
+int decrypt_file(const char *inputFileName, const char *outputFileName, const unsigned char *key);
+
 #endif
