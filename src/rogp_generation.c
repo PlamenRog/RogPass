@@ -16,8 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/evp.h>
-#include <openssl/aes.h>
 
 #include "main_structures.h"
 
@@ -26,6 +24,8 @@ void handleErrors(void)
     fprintf(stderr, "Error occurred\n");
     exit(1);
 }
+
+// Serialization functions
 
 void serialize_entry(FILE* file, EntryPass* entries, uint32_t numEntries) {
     if (file == NULL) {
@@ -88,91 +88,14 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
     return entries;
 }
 
+
+
+// Cryptography functions
+
+#define KEY_SIZE 32  // AES-256 key size
+
 void generate_key_from_password(const char *password, unsigned char *key) {
     if (PKCS5_PBKDF2_HMAC(password, strlen(password), NULL, 0, 10000, EVP_sha256(), 32, key) != 1) {
         handleErrors();
     }
 }
-
-void encrypt_file(const char *inputFile, const char *outputFile, const unsigned char *key) {
-    FILE *inFile = fopen(inputFile, "rb");
-    FILE *outFile = fopen(outputFile, "wb");
-    if (!inFile || !outFile) {
-        perror("Error opening file");
-        exit(1);
-    }
-
-    EVP_CIPHER_CTX *ctx;
-    ctx = EVP_CIPHER_CTX_new();
-    if (!ctx) handleErrors();
-
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, NULL) != 1) handleErrors();
-
-    int blockSize = EVP_CIPHER_block_size(EVP_aes_256_cbc());
-    unsigned char *buffer = malloc(blockSize);
-    if (!buffer) handleErrors();
-
-    unsigned char *outBuffer = malloc(blockSize + blockSize);
-    if (!outBuffer) handleErrors();
-
-    int len;
-    int outLen;
-
-    while ((len = fread(buffer, 1, blockSize, inFile)) > 0) {
-        if (EVP_EncryptUpdate(ctx, outBuffer, &outLen, buffer, len) != 1) handleErrors();
-        fwrite(outBuffer, 1, outLen, outFile);
-    }
-
-    if (EVP_EncryptFinal_ex(ctx, outBuffer, &outLen) != 1) handleErrors();
-    fwrite(outBuffer, 1, outLen, outFile);
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    free(buffer);
-    free(outBuffer);
-
-    fclose(inFile);
-    fclose(outFile);
-}
-
-void decrypt_file(const char *inputFile, const char *outputFile, const unsigned char *key) {
-    FILE *inFile = fopen(inputFile, "rb");
-    FILE *outFile = fopen(outputFile, "wb");
-    if (!inFile || !outFile) {
-        perror("Error opening file");
-        exit(1);
-    }
-
-    EVP_CIPHER_CTX *ctx;
-    ctx = EVP_CIPHER_CTX_new();
-    if (!ctx) handleErrors();
-
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, NULL) != 1) handleErrors();
-
-    int blockSize = EVP_CIPHER_block_size(EVP_aes_256_cbc());
-    unsigned char *buffer = malloc(blockSize);
-    if (!buffer) handleErrors();
-
-    unsigned char *outBuffer = malloc(blockSize + blockSize);
-    if (!outBuffer) handleErrors();
-
-    int len;
-    int outLen;
-
-    while ((len = fread(buffer, 1, blockSize, inFile)) > 0) {
-        if (EVP_DecryptUpdate(ctx, outBuffer, &outLen, buffer, len) != 1) handleErrors();
-        fwrite(outBuffer, 1, outLen, outFile);
-    }
-
-    if (EVP_DecryptFinal_ex(ctx, outBuffer, &outLen) != 1) handleErrors();
-    fwrite(outBuffer, 1, outLen, outFile);
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    free(buffer);
-    free(outBuffer);
-
-    fclose(inFile);
-    fclose(outFile);
-}
-

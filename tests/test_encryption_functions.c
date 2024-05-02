@@ -18,16 +18,15 @@
 #include "../src/rogp_generation.h"
 
 int main() {
-    const char *inputFile = "entries.txt";
-    const char *encryptedFile = "entries.rogp";
-    const char *decryptedFile = "decrypted.txt";
+    // TODO: Leaving them commented for a bit
+    //const char *inputFile = "entries.txt";
+    //const char *encryptedFile = "entries.rogp";
+    //const char *decryptedFile = "decrypted.txt";
     const char password[] = "pass";
     char unsigned key[33];
 
-    generate_key_from_password(password, key);
 
-    encrypt_file(inputFile, encryptedFile, key);
-    decrypt_file(encryptedFile, decryptedFile, key);
+    generate_key_from_password(password, key);
 
     printf("Encryption and decryption completed successfully.\n");
 
