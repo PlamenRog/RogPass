@@ -1,5 +1,3 @@
-<h1 style="text-align:center">
-
 <pre style="font-size: 2em; font-weight: bold; margin-bottom: 0.5em; text-align:center">
 ______               ______                  
 | ___ \              | ___ \                 
