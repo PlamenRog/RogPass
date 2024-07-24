@@ -14,7 +14,7 @@ ______               ______
 
 
 Dependencies:
- - GCC (tested on version 11.4 with c18 and c2x but should work on older ones as well)
+ - GCC (tested on version 11.4 and 12.2 with c18 and c2x flags, but should work on older ones as well)
  - OpenSSL (>=3.0.0)
 
 Compile it with:
