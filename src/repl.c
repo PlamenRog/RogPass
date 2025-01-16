@@ -287,6 +287,7 @@ int main(){
 				exit(EXIT_FAILURE);
 			}
 
+			printf("Enter the master password:  ");
 			scanf(" %128[^\n]", masterPass);
 
 			char unsigned key[17];
@@ -409,6 +410,7 @@ int main(){
 			serialize_entry(tempFile, entries, numEntries);
 			fclose(tempFile);
 
+
 			char unsigned key[17];
 			generate_key_from_password(masterPass, key);
 
@@ -418,6 +420,7 @@ int main(){
 				fprintf(stderr, "Encryption failed\n");
 				exit(EXIT_FAILURE);
 			}
+			remove("temp.txt");
 
 			hasSaved = true;
 		}
