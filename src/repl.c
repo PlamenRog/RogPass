@@ -219,7 +219,7 @@ void delete_entry(EntryPass* entries, uint32_t* numEntries) {
 
 void print_help() {
 	fprintf(stdout, "%s\n", "\n"
-	        "rogpass			   manages passwords somewhat safely\n"
+	        "rogpass                           manages passwords somewhat safely\n"
 	        "\n"
 	        "commands:\n"
 	        "\n"
