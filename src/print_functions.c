@@ -18,7 +18,6 @@
 
 #include "main_structures.h"
 
-// Function to find the maximum of three integers
 int max_of_three(int a, int b, int c) {
     int max = a;
     if (b > max) max = b;
@@ -27,7 +26,7 @@ int max_of_three(int a, int b, int c) {
 }
 
 void pretty_print(EntryPass* entry, uint32_t numEntries) {
-    // Calculate the maximum length of each field in all entries
+    // calculate the maximum length of each field in all entries
     int max_entryName_length = 0;
     int max_url_length = 0;
 
@@ -39,12 +38,12 @@ void pretty_print(EntryPass* entry, uint32_t numEntries) {
         if (url_length > max_url_length) max_url_length = url_length;
     }
 
-    // Calculate the width of each column
+    // calculate the width of each column
     int width_number = max_of_three(6, 5, 6); // Minimum width 6
     int width_entryName = max_of_three(15, max_entryName_length, 15); // Minimum width 15
     int width_url = max_of_three(10, max_url_length, 10); // Minimum width 10
 
-    // Print the header
+    // print the header
     printf("| %-*s | %-*s | %-*s |\n", width_number, "ID", width_entryName, "Entry name", width_url, "URL");
     printf("|");
 
@@ -57,7 +56,7 @@ void pretty_print(EntryPass* entry, uint32_t numEntries) {
     for (int i = 0; i < width_url + 2; i++) printf("-");
     printf("|\n");
 
-    // Print each entry.
+    // print each entry
     for (uint32_t i = 0; i < numEntries; ++i) {
         printf("| %-*d | %-*s | %-*s |\n", width_number, i, width_entryName, entry[i].entryName, width_url, entry[i].url);
     }

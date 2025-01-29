@@ -48,18 +48,17 @@ void get_password_preference(const char *prompt, bool *passwordAttribute) {
 }
 
 Password input_password() {
-	Password pass = PASS_DEFAULTS; // NOTE: See main_structures.h
+	Password pass = PASS_DEFAULTS; // NOTE: see main_structures.h
 
     while (true) {
         printf("Enter the password length (max is 128): ");
         if (scanf("%u", &pass.length) == 1) {
-            while(getchar() != '\n'); // Clear input buffer
+            while(getchar() != '\n'); // clear input buffer
             if (pass.length <= 128) {
                 break;
             }
             printf("Number is too large.\n");
         } else {
-            // Clear input buffer
             while(getchar() != '\n');
             printf("Invalid input. Please enter an integer.\n");
         }
@@ -135,7 +134,7 @@ char* generate_password(Password pass) {
 		return "";
 	}
 
-    const uint32_t charsetLength = strlen(charset); // Calculate charset length after all characters are added
+    const uint32_t charsetLength = strlen(charset);
     char *randomString = (char *)malloc((pass.length + 1) * sizeof(char));
 
 	for (uint32_t i = 0; i < pass.length; i++) {

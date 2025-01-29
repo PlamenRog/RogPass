@@ -58,7 +58,7 @@ void create_password(char pass[129]) {
 	printf("\n");
 }
 
-// Function to dynamically allocate memory for a string
+// dynamically allocates memory for string
 char* copyString(const char* source) {
 	if (source == NULL || strcmp(source, "") == 0) {
 		return NULL;
@@ -108,10 +108,10 @@ EntryPass create_entry() {
 		note[0] = '\0'; // Set to empty string if "BLANK" is entered
 	}
 
-	// Generate password (implement your own password generation logic)
+	// generate password
 	create_password(pass);
 
-	// Create new EntryPass instance with dynamically allocated strings
+	// create new EntryPass instance with dynamically allocated strings
 	EntryPass newEntry = {
 		copyString(entryName),
 		copyString(username),
@@ -168,7 +168,6 @@ void mod_entry(EntryPass* entries, uint32_t numEntries) {
 		for (int i = 0; i < 10; i++) {
 			choice[i] = toupper(choice[i]);
 		}
-
 
 		if (strcmp(choice, "ENTRYNAME") == 0 || strcmp(choice, "ENTRY NAME") == 0) {
 			printf("Enter the entry name: ");

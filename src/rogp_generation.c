@@ -28,8 +28,7 @@ void handleErrors(void)
     exit(1);
 }
 
-// Serialization functions
-
+/* Serialization functions */
 void serialize_entry(FILE* file, EntryPass* entries, uint32_t numEntries) {
     if (file == NULL) {
         printf("Error: File pointer is NULL.\n");
@@ -56,7 +55,7 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
         return NULL;
     }
 
-    // Count the number of lines (entries) in the file
+    // get the number entries in the file
     int count = 0;
     char ch;
     while ((ch = fgetc(file)) != EOF) {
@@ -64,7 +63,7 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
             count++;
         }
     }
-    rewind(file); // Reset file position indicator
+    rewind(file); // reset file position indicator
 
     // Allocate memory for array of EntryPass structs
     EntryPass* entries = (EntryPass*)malloc(count * sizeof(EntryPass));
@@ -73,7 +72,7 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
         return NULL;
     }
 
-    // Read data from file and deserialize into EntryPass structs
+    // read data from file and deserialize into EntryPass structs
     for (int i = 0; i < count; i++) {
         char entryName[128], username[128], email[128], url[128], note[128], pass[128];
 
@@ -93,7 +92,7 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
 
 
 
-// Cryptography functions
+/* Cryptography functions */
 
 #define AES_BLOCK_SIZE 16 // 16 bytes -> 128 bits
 
@@ -124,7 +123,7 @@ int encrypt_file(const char *inputFileName, const char *outputFileName, const un
     EVP_CIPHER_CTX *ctx;
     unsigned char iv[AES_BLOCK_SIZE];
 
-    // Create and initialize the context
+    // create and initialize the context
     ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         perror("Error creating cipher context");
@@ -133,9 +132,8 @@ int encrypt_file(const char *inputFileName, const char *outputFileName, const un
         return -1;
     }
 
-    generate_random_iv(iv);  // Generate random IV
+    generate_random_iv(iv);  // generate random IV
 
-    // Initialize encryption operation
     if (EVP_EncryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key, iv) != 1) {
         perror("Error initializing encryption");
         EVP_CIPHER_CTX_free(ctx);
@@ -150,10 +148,9 @@ int encrypt_file(const char *inputFileName, const char *outputFileName, const un
     int bytesWritten = 0;
     int finalWritten = 0;
 
-    // Write IV to the beginning of the output file
+    // write IV to the beginning of the output file
     fwrite(iv, 1, AES_BLOCK_SIZE, outputFile);
 
-    // Perform encryption
     while ((bytesRead = fread(inBuffer, 1, AES_BLOCK_SIZE, inputFile)) > 0) {
         if (EVP_EncryptUpdate(ctx, outBuffer, &bytesWritten, inBuffer, bytesRead) != 1) {
             perror("Error encrypting data");
@@ -165,7 +162,6 @@ int encrypt_file(const char *inputFileName, const char *outputFileName, const un
         fwrite(outBuffer, 1, bytesWritten, outputFile);
     }
 
-    // Finalize encryption
     if (EVP_EncryptFinal_ex(ctx, outBuffer, &finalWritten) != 1) {
         perror("Error finalizing encryption");
         EVP_CIPHER_CTX_free(ctx);
@@ -175,7 +171,6 @@ int encrypt_file(const char *inputFileName, const char *outputFileName, const un
     }
     fwrite(outBuffer, 1, finalWritten, outputFile);
 
-    // Clean up
     EVP_CIPHER_CTX_free(ctx);
     fclose(inputFile);
     fclose(outputFile);
@@ -200,7 +195,7 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
     EVP_CIPHER_CTX *ctx;
     unsigned char iv[AES_BLOCK_SIZE];
 
-    // Read IV from the beginning of the input file
+    // read IV from the beginning of the input file
     if (fread(iv, 1, AES_BLOCK_SIZE, inputFile) != AES_BLOCK_SIZE) {
         perror("Error reading IV from input file");
         fclose(inputFile);
@@ -208,7 +203,6 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
         return -1;
     }
 
-    // Create and initialize the context
     ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
         perror("Error creating cipher context");
@@ -217,7 +211,6 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
         return -1;
     }
 
-    // Initialize decryption operation
     if (EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key, iv) != 1) {
         perror("Error initializing decryption");
         EVP_CIPHER_CTX_free(ctx);
@@ -232,7 +225,6 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
     int bytesWritten = 0;
     int finalWritten = 0;
 
-    // Perform decryption
     while ((bytesRead = fread(inBuffer, 1, AES_BLOCK_SIZE + EVP_MAX_BLOCK_LENGTH, inputFile)) > 0) {
         if (EVP_DecryptUpdate(ctx, outBuffer, &bytesWritten, inBuffer, bytesRead) != 1) {
             perror("Error decrypting data");
@@ -244,7 +236,6 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
         fwrite(outBuffer, 1, bytesWritten, outputFile);
     }
 
-    // Finalize decryption
     if (EVP_DecryptFinal_ex(ctx, outBuffer, &finalWritten) != 1) {
         perror("Error finalizing decryption");
         EVP_CIPHER_CTX_free(ctx);
@@ -254,7 +245,6 @@ int decrypt_file(const char *inputFileName, const char *outputFileName, const un
     }
     fwrite(outBuffer, 1, finalWritten, outputFile);
 
-    // Clean up
     EVP_CIPHER_CTX_free(ctx);
     fclose(outputFile);
     fclose(inputFile);
