@@ -22,3 +22,8 @@ Compile it with:
 make install
 ```
 
+Recommended way to run is to put the binary somewhere in your PATH and then do
+```bash
+rogp
+```
+where exactly you will put the binary is entirely up to you, of course.
