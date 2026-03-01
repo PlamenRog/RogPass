@@ -24,11 +24,18 @@
 #include "generation_utility.h"
 
 char get_single_char_input(const char *prompt) {
-    printf("%s", prompt);
-    char choice;
-    scanf(" %1c", &choice);
-	while(getchar() != '\n');
-    return toupper(choice);
+	char buffer[10];
+	while (true) {
+		printf("%s", prompt);
+		if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+			clearerr(stdin);
+			continue;
+		}
+
+		if (buffer[0] == '\0') continue;
+
+		return toupper(buffer[0]);
+	}
 }
 
 void get_password_preference(const char *prompt, bool *passwordAttribute) {

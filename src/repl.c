@@ -24,6 +24,26 @@
 #include "generation_utility.h"
 #include "print_functions.h"
 
+void trim_newline(char* str) {
+	size_t len = strlen(str);
+	if (len > 0 && str[len - 1] == '\n') {
+		str[len - 1] = '\0';
+	}
+}
+
+// fgets wrapper to check return value
+void safe_fgets(char* buffer, size_t size) {
+	while (true) {
+		if (fgets(buffer, size, stdin) == NULL) {
+			clearerr(stdin);
+			printf("Input error, please try again: ");
+			continue;
+		}
+		trim_newline(buffer);
+		break;
+	}
+}
+
 int check_entry_count(int numEntries) {
 	if (numEntries == 0) {
 		printf("There aren't any available entries.\n");
@@ -36,14 +56,13 @@ void create_password(char pass[129]) {
 	while (true) {
 		printf("Would you like to manually type in or generate a password?(m/g): ");
 		char choice[9];
-		scanf(" %8[^\n]", choice);
-		for (int i = 0; i < 8; i++) {
-			choice[i] = toupper(choice[i]);
-		}
+		safe_fgets(choice, sizeof(choice));
+
+		for (int i = 0; choice[i]; i++) choice[i] = toupper(choice[i]);
 
 		if (strcmp(choice, "MANUALLY") == 0 || strcmp(choice, "M") == 0) {
 			printf("Enter the pass: ");
-			scanf(" %128[^\n]", pass);
+			safe_fgets(pass, 129);
 			break;
 		}
 		else if (strcmp(choice, "GENERATE") == 0 || strcmp(choice, "G") == 0) {
@@ -54,64 +73,41 @@ void create_password(char pass[129]) {
 
 		printf("Invalid input, try again!\n");
 	}
-
 	printf("\n");
 }
 
-// dynamically allocates memory for string
 char* copyString(const char* source) {
-	if (source == NULL || strcmp(source, "") == 0) {
-		return NULL;
-	}
+	if (source == NULL || strcmp(source, "") == 0) return NULL;
 	char* destination = malloc(strlen(source) + 1);
-	if (destination != NULL) {
-		strcpy(destination, source);
-	}
+	if (destination != NULL) strcpy(destination, source);
 	return destination;
 }
 
 EntryPass create_entry() {
-	char entryName[129];
-	char username[129];
-	char email[129];
-	char url[129];
-	char note[513];
-	char pass[129];
+	char entryName[129], username[129], email[129], url[129], note[513], pass[129];
 
 	printf("Enter the entry name (type \"BLANK\" to leave empty): ");
-	scanf(" %128[^\n]", entryName);
-	if (strcmp(entryName, "BLANK") == 0) {
-		entryName[0] = '\0'; // Set to empty string if "BLANK" is entered
-	}
+	safe_fgets(entryName, sizeof(entryName));
+	if (strcmp(entryName, "BLANK") == 0) entryName[0] = '\0';
 
 	printf("Enter the username (type \"BLANK\" to leave empty): ");
-	scanf(" %128[^\n]", username);
-	if (strcmp(username, "BLANK") == 0) {
-		username[0] = '\0'; // Set to empty string if "BLANK" is entered
-	}
+	safe_fgets(username, sizeof(username));
+	if (strcmp(username, "BLANK") == 0) username[0] = '\0';
 
 	printf("Enter the email (type \"BLANK\" to leave empty): ");
-	scanf(" %128[^\n]", email);
-	if (strcmp(email, "BLANK") == 0) {
-		email[0] = '\0'; // Set to empty string if "BLANK" is entered
-	}
+	safe_fgets(email, sizeof(email));
+	if (strcmp(email, "BLANK") == 0) email[0] = '\0';
 
 	printf("Enter the url (type \"BLANK\" to leave empty): ");
-	scanf(" %128[^\n]", url);
-	if (strcmp(url, "BLANK") == 0) {
-		url[0] = '\0'; // Set to empty string if "BLANK" is entered
-	}
+	safe_fgets(url, sizeof(url));
+	if (strcmp(url, "BLANK") == 0) url[0] = '\0';
 
 	printf("Enter the note (type \"BLANK\" to leave empty): ");
-	scanf(" %512[^\n]", note);
-	if (strcmp(note, "BLANK") == 0) {
-		note[0] = '\0'; // Set to empty string if "BLANK" is entered
-	}
+	safe_fgets(note, sizeof(note));
+	if (strcmp(note, "BLANK") == 0) note[0] = '\0';
 
-	// generate password
 	create_password(pass);
 
-	// create new EntryPass instance with dynamically allocated strings
 	EntryPass newEntry = {
 		copyString(entryName),
 		copyString(username),
@@ -125,21 +121,24 @@ EntryPass create_entry() {
 }
 
 uint32_t select_entry(EntryPass* entries, uint32_t numEntries, const char* keyword) {
+	char buffer[20];
 	uint32_t num;
+
 	while (true) {
 		pretty_print(entries, numEntries);
 		printf("Enter the number of the entry which you'd like to %s: \n", keyword);
 		printf("rogp? ");
-		if (scanf("%u", &num) != 1) {
-			while(getchar() != '\n');
+		safe_fgets(buffer, sizeof(buffer));
+
+		if (sscanf(buffer, "%u", &num) != 1) {
 			printf("Invalid input. Please enter an integer.\n");
+			continue;
 		}
-		while(getchar() != '\n');
-		if (num < numEntries) {
-			break;
-		}
+
+		if (num < numEntries) break;
 		printf("Number is too large.\n");
 	}
+
 	return num;
 }
 
@@ -158,44 +157,40 @@ void show_entry(EntryPass* entries, uint32_t numEntries) {
 
 void mod_entry(EntryPass* entries, uint32_t numEntries) {
 	uint32_t num = select_entry(entries, numEntries, "modify");
+	char choice[20];
 
-	char choice[11];
-
-	while(true) {
+	while (true) {
 		printf("Now select which attribute you would like to edit(username, password, etc.): ");
-		scanf(" %10[^\n]", choice);
+		safe_fgets(choice, sizeof(choice));
 
-		for (int i = 0; i < 10; i++) {
-			choice[i] = toupper(choice[i]);
-		}
+		for (int i = 0; choice[i]; i++) choice[i] = toupper(choice[i]);
 
 		if (strcmp(choice, "ENTRYNAME") == 0 || strcmp(choice, "ENTRY NAME") == 0) {
 			printf("Enter the entry name: ");
-			scanf(" %128[^\n]", entries[num].entryName);
+			safe_fgets(entries[num].entryName, 129);
 			break;
 		}
 		else if (strcmp(choice, "USERNAME") == 0) {
 			printf("Enter the username: ");
-			scanf(" %128[^\n]", entries[num].username);
+			safe_fgets(entries[num].username, 129);
 			break;
 		}
 		else if (strcmp(choice, "EMAIL") == 0) {
 			printf("Enter the email: ");
-			scanf(" %128[^\n]", entries[num].email);
+			safe_fgets(entries[num].email, 129);
 			break;
 		}
 		else if (strcmp(choice, "URL") == 0) {
 			printf("Enter the url: ");
-			scanf(" %128[^\n]", entries[num].url);
+			safe_fgets(entries[num].url, 129);
 			break;
 		}
 		else if (strcmp(choice, "NOTE") == 0) {
 			printf("Enter the note: ");
-			scanf(" %128[^\n]", entries[num].note);
+			safe_fgets(entries[num].note, 513);
 			break;
 		}
 		else if (strcmp(choice, "PASSWORD") == 0 || strcmp(choice, "PASS") == 0) {
-			printf("Enter the password: ");
 			create_password(entries[num].pass);
 			break;
 		}
@@ -206,90 +201,76 @@ void mod_entry(EntryPass* entries, uint32_t numEntries) {
 
 void delete_entry(EntryPass* entries, uint32_t* numEntries) {
 	uint32_t num = select_entry(entries, *numEntries, "delete");
-
 	for (uint32_t i = num; i < (*numEntries - 1); i++) {
 		entries[i] = entries[i + 1];
 	}
-
-	*numEntries -= 1;
-
+	(*numEntries)--;
 }
-
 
 void print_help() {
 	fprintf(stdout, "%s\n", "\n"
-	        "rogpass                           manages passwords somewhat safely\n"
-	        "\n"
-	        "commands:\n"
-	        "\n"
-	        "add                               adds entry\n"
-	        "show                              expands on an entry\n"
-	        "mod, modify                       modifies an entry\n"
-	        "del, delete                       deletes an entry\n"
-	        "print                             prints surface info about all entries\n"
-	        "help                              prints this message\n"
-	        "write                             writes changes\n"
-	        "exit                              exits the program\n"
-	        "\n");
+			"rogpass                           manages passwords somewhat safely\n"
+			"\n"
+			"commands:\n"
+			"\n"
+			"add                               adds entry\n"
+			"show                              expands on an entry\n"
+			"mod, modify                       modifies an entry\n"
+			"del, delete                       deletes an entry\n"
+			"print                             prints surface info about all entries\n"
+			"help                              prints this message\n"
+			"write                             writes changes\n"
+			"exit                              exits the program\n"
+			"\n");
 }
 
-int main(){
+int main() {
 	FILE* file = NULL;
 	EntryPass* entries = NULL;
 	uint32_t numEntries = 0;
-	char masterPass[129];
+	char masterPass[129], filename[129], command[20];
+	bool hasSaved = true;
 
-	char filename[129];
-	while(true) {
-		char choice[7];
+	while (true) {
+		char choice[10];
 		printf("Create a new file or open an existing one(c/o): ");
-		scanf(" %6s", choice);
+		safe_fgets(choice, sizeof(choice));
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; choice[i]; i++) {
 			choice[i] = toupper(choice[i]);
 		}
 
 		if (strcmp(choice, "CREATE") == 0 || strcmp(choice, "C") == 0) {
-			printf("Enter a file name(without the extention): ");
-			// 5 characters less, because .rogp might be appended
-			scanf(" %123[^\n]", filename);
-
-			size_t len = strlen(filename);
-			char* last_five = filename + (len - 5);
-			if (strcmp(last_five, ".rogp") != 0) {
+			printf("Enter a file name(without the extension): ");
+			safe_fgets(filename, sizeof(filename));
+			if (strlen(filename) < 5 || strcmp(filename + strlen(filename) - 5, ".rogp") != 0) {
 				strcat(filename, ".rogp");
 			}
 
 			printf("Enter the master password(using this you will access your file, make sure to remember it): ");
-			if (scanf(" %128[^\n]", masterPass) != 1) {
-				printf("An error ocurred.");
-				exit(EXIT_FAILURE);
-			}
+			safe_fgets(masterPass, sizeof(masterPass));
 
 			file = fopen(filename, "w");
-			if (file == NULL) {
-				printf("Error creating file for writing\n");
-				exit(EXIT_FAILURE);
+			if (!file) {
+				printf("Error creating file for writing\n"); exit(EXIT_FAILURE);
 			}
-
 			fclose(file);
 			break;
 		}
 
 		if (strcmp(choice, "OPEN") == 0 || strcmp(choice, "O") == 0) {
-			printf("Enter a file name(with the extention): ");
-			scanf(" %128[^\n]", filename);
+			printf("Enter a file name(with the extension): ");
+			safe_fgets(filename, sizeof(filename));
 
 			file = fopen(filename, "r");
-			if (file == NULL) {
-				printf("Error opening file for redacting\n");
-				exit(EXIT_FAILURE);
+			if (!file) {
+				printf("Error opening file for redacting\n"); exit(EXIT_FAILURE);
 			}
 
-			printf("Enter the master password:  ");
-			scanf(" %128[^\n]", masterPass);
+			printf("Enter the master password:	");
+			safe_fgets(masterPass, sizeof(masterPass));
 
-			char unsigned key[17];
+			unsigned char key[17];
 			generate_key_from_password(masterPass, key);
 
 			if (decrypt_file(filename, "temp.txt", key) != 0) {
@@ -298,13 +279,12 @@ int main(){
 			}
 
 			FILE* tempFile = fopen("temp.txt", "r");
-			if (tempFile == NULL) {
+			if (!tempFile) {
 				printf("Error opening file for reading.\n");
 				return 1;
 			}
 			entries = deserialize_entry(tempFile, &numEntries);
 			fclose(tempFile);
-
 			remove("temp.txt");
 			fclose(file);
 			break;
@@ -314,119 +294,83 @@ int main(){
 	}
 
 	printf("Enter a command('help' for help menu, 'exit' to quit): \n");
-	char choice[7];
-	bool hasSaved = true;
+
 	while (true) {
 		printf("rog> ");
-		scanf(" %5s", choice);
-
-		for (int i = 0; i < 6; i++) {
-			choice[i] = toupper(choice[i]);
+		safe_fgets(command, sizeof(command));
+		for (int i = 0; command[i]; i++) {
+			command[i] = toupper(command[i]);
 		}
 
-		if (strcmp(choice, "EXIT") == 0) {
+		if (strcmp(command, "EXIT") == 0) {
 			if (!hasSaved) {
 				printf("You have unsaved changes! Are you sure you want to exit(type full yes or no): ");
-
-				char saveChoice[4];
-				if(scanf(" %s", saveChoice) != 1) {
-					printf("Invalid input, doing nothing.");
-					continue;
-				}
-
-				for (int i = 0; i < 3; i++) {
+				char saveChoice[10];
+				safe_fgets(saveChoice, sizeof(saveChoice));
+				for (int i = 0; saveChoice[i]; i++) {
 					saveChoice[i] = toupper(saveChoice[i]);
 				}
-
-				if(strcmp(saveChoice, "YES") != 0)
-					continue;
+				if (strcmp(saveChoice, "YES") != 0) continue;
 			}
-
-
 			printf("Exiting...\n");
 			break;
 		}
-
-		else if (strcmp(choice, "HELP") == 0) {
+		else if (strcmp(command, "HELP") == 0) {
 			print_help();
 		}
-
-		else if (strcmp(choice, "ADD") == 0) {
+		else if (strcmp(command, "ADD") == 0) {
 			EntryPass newEntry = create_entry();
-			uint32_t new_size = numEntries+1;
-			EntryPass* temp = realloc(entries, new_size * sizeof(EntryPass));
-			if (temp == NULL) {
+			EntryPass* temp = realloc(entries, (numEntries + 1) * sizeof(EntryPass));
+			if (!temp) {
 				fprintf(stderr, "Memory reallocation failed\n");
 				free(entries);
 				exit(EXIT_FAILURE);
 			}
 			entries = temp;
-			entries[numEntries] = newEntry;
-			numEntries = new_size;
+			entries[numEntries++] = newEntry;
 			hasSaved = false;
 		}
-
-
-		else if (strcmp(choice, "SHOW") == 0) {
-			if (check_entry_count(numEntries) != 0) {
-				continue;
+		else if (strcmp(command, "SHOW") == 0) {
+			if (!check_entry_count(numEntries)) {
+				show_entry(entries, numEntries);
 			}
-			show_entry(entries, numEntries);
 		}
-
-
-		else if (strcmp(choice, "MOD") == 0 || strcmp(choice, "MODIFY") == 0) {
-			if (check_entry_count(numEntries) != 0) {
-				continue;
+		else if (strcmp(command, "MOD") == 0 || strcmp(command, "MODIFY") == 0) {
+			if (!check_entry_count(numEntries)) {
+				mod_entry(entries, numEntries);
+				hasSaved = false;
 			}
-			mod_entry(entries, numEntries);
-			hasSaved = false;
 		}
-
-
-		else if (strcmp(choice, "DEL") == 0 || strcmp(choice, "DELETE") == 0) {
-			if (check_entry_count(numEntries) != 0) {
-				continue;
+		else if (strcmp(command, "DEL") == 0 || strcmp(command, "DELETE") == 0) {
+			if (!check_entry_count(numEntries)) {
+				delete_entry(entries, &numEntries);
+				hasSaved = false;
 			}
-
-			delete_entry(entries, &numEntries);
-			hasSaved = false;
 		}
-
-
-		else if (strcmp(choice, "PRINT") == 0) {
+		else if (strcmp(command, "PRINT") == 0) {
 			pretty_print(entries, numEntries);
 		}
-
-		else if (strcmp(choice, "WRITE") == 0) {
-
+		else if (strcmp(command, "WRITE") == 0) {
 			FILE* tempFile = fopen("temp.txt", "w");
-			if (file == NULL) {
+			if (!tempFile) {
 				printf("Error opening file for writing.\n");
 				exit(EXIT_FAILURE);
 			}
-
 			serialize_entry(tempFile, entries, numEntries);
 			fclose(tempFile);
 
-
-			char unsigned key[17];
+			unsigned char key[17];
 			generate_key_from_password(masterPass, key);
 
-		
 			remove(filename);
 			if (encrypt_file("temp.txt", filename, key) != 0) {
 				fprintf(stderr, "Encryption failed\n");
 				exit(EXIT_FAILURE);
 			}
 			remove("temp.txt");
-
 			hasSaved = true;
 		}
-
-		else {
-			printf("Invalid input, try again.\n");
-		}
+		else printf("Invalid input, try again.\n");
 	}
 
 	return 0;
