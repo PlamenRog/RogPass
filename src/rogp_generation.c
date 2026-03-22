@@ -34,7 +34,7 @@ void serialize_entry(FILE* file, EntryPass* entries, uint32_t numEntries) {
 	}
 
 	for (uint32_t i = 0; i < numEntries; i++) {
-		fprintf(file, "%s|%s|%s|%s|%s|%s\n", entries[i].entryName, entries[i].username,
+		fprintf(file, "%s\x1F%s\x1F%s\x1F%s\x1F%s\x1F%s\n", entries[i].entryName, entries[i].username,
 		        entries[i].email, entries[i].url, entries[i].note, entries[i].pass);
 	}
 }
@@ -74,8 +74,9 @@ EntryPass* deserialize_entry(FILE* file, uint32_t* numEntries) {
 	for (int i = 0; i < count; i++) {
 		char entryName[128], username[128], email[128], url[128], note[128], pass[128];
 
-		int n = fscanf(file, "%128[^|]|%128[^|]|%128[^|]|%128[^|]|%512[^|]|%128[^\n]\n",
-					   entryName, username, email, url, note, pass);
+		int n = fscanf(file,
+		    "%128[^\x1F]\x1F%128[^\x1F]\x1F%128[^\x1F]\x1F%128[^\x1F]\x1F%512[^\x1F]\x1F%128[^\n]\n",
+		    entryName, username, email, url, note, pass);
 
 		if (n != 6) {
 			if (feof(file)) break;		 // normal EOF

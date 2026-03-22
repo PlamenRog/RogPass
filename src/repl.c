@@ -267,7 +267,7 @@ int main() {
 				printf("Error opening file for redacting\n"); exit(EXIT_FAILURE);
 			}
 
-			printf("Enter the master password:	");
+			printf("Enter the master password: ");
 			safe_fgets(masterPass, sizeof(masterPass));
 
 			unsigned char key[17];
