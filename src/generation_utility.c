@@ -108,15 +108,19 @@ double calculate_entropy(char* pass) {
 	for (uint32_t i = 0; i < strlen(pass); i++) {
 		if (strchr(lower, pass[i]) != NULL && !checkedLow) {
 			charsetLength += 26;
+			checkedLow = true;
 		}
 		else if (strchr(upper, pass[i]) != NULL && !checkedUp) {
 			charsetLength += 26;
+			checkedUp = true;
 		}
 		else if (strchr(nums, pass[i]) != NULL && !checkedNum) {
 			charsetLength += 10;
+			checkedNum = true;
 		}
 		else if (strchr(specs, pass[i]) != NULL && !checkedSpecs) {
 			charsetLength += 32;
+			checkedSpecs = true;
 		}
 	}
 
